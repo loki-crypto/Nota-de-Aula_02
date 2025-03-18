@@ -1,0 +1,130 @@
+---------------------------------------------------------------------------------MAIN-----------------------------------------------------------------------------------------------
+
+public class Main {
+    public static void main(String[] args) {
+        Produto produto = new Produto(1, "Camiseta", "M", "Azul", 50.0, 10);
+
+        Venda venda1 = new Venda(produto, 2, "Pix", 0);
+        venda1.realizarVenda();
+
+        Venda venda2 = new Venda(produto, 1, "Espécie", 60.0);
+        venda2.realizarVenda();
+
+        Venda venda3 = new Venda(produto, 3, "Crédito", 0);
+        venda3.realizarVenda();
+
+        System.out.println("Quantidade em estoque: " + produto.getQuantidadeEstoque());
+    }
+}
+
+-------------------------------------------------------------------------------VENDA-------------------------------------------------------------------------------------------------
+
+import java.text.DecimalFormat;
+
+public class Venda {
+    private Produto produto;
+    private int quantidade;
+    private String formaPagamento;
+    private double valorPago;
+
+    public Venda(Produto produto, int quantidade, String formaPagamento, double valorPago) {
+        this.produto = produto;
+        this.quantidade = quantidade;
+        this.formaPagamento = formaPagamento;
+        this.valorPago = valorPago;
+    }
+
+    public void realizarVenda() {
+        if (produto.vender(quantidade)) {
+            double valorTotal = produto.getValor() * quantidade;
+            double valorFinal = calcularValorFinal(valorTotal);
+            System.out.println("Venda realizada com sucesso!");
+            System.out.println("Valor total: R$" + formatarValor(valorTotal));
+            System.out.println("Valor final: R$" + formatarValor(valorFinal));
+
+            if (formaPagamento.equalsIgnoreCase("Espécie") && valorPago > valorFinal) {
+                double troco = valorPago - valorFinal;
+                System.out.println("Troco: R$" + formatarValor(troco));
+            }
+        }
+    }
+
+    private double calcularValorFinal(double valorTotal) {
+        switch (formaPagamento.toUpperCase()) {
+            case "PIX":
+            case "DÉBITO":
+            case "TRANSFERÊNCIA":
+            case "ESPÉCIE":
+                return valorTotal * 0.95;
+            case "CRÉDITO":
+                System.out.println("Parcelado em 3x sem juros: R$" + formatarValor(valorTotal / 3) + " por mês");
+                return valorTotal;
+            default:
+                System.out.println("Forma de pagamento inválida. Sem desconto aplicado.");
+                return valorTotal;
+        }
+    }
+
+    private String formatarValor(double valor) {
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return df.format(valor);
+    }
+}
+
+-----------------------------------------------------------------------------------PRODUTO----------------------------------------------------------------------------------------
+
+public class Produto {
+    private int codigo;
+    private String nome;
+    private String tamanhoPeso;
+    private String cor;
+    private double valor;
+    private int quantidadeEstoque;
+
+    public Produto(int codigo, String nome, String tamanhoPeso, String cor, double valor, int quantidadeEstoque) {
+        this.codigo = codigo;
+        this.nome = nome;
+        this.tamanhoPeso = tamanhoPeso;
+        this.cor = cor;
+        this.valor = valor;
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
+
+    public int getCodigo() {
+        return codigo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getTamanhoPeso() {
+        return tamanhoPeso;
+    }
+
+    public String getCor() {
+        return cor;
+    }
+
+    public double getValor() {
+        return valor;
+    }
+
+    public int getQuantidadeEstoque() {
+        return quantidadeEstoque;
+    }
+
+    public void setQuantidadeEstoque(int quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
+
+    public boolean vender(int quantidade) {
+        if (quantidade <= quantidadeEstoque) {
+            quantidadeEstoque -= quantidade;
+            return true;
+        } else {
+            System.out.println("Estoque insuficiente!");
+            return false;
+        }
+    }
+}
